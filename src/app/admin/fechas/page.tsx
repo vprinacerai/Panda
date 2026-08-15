@@ -142,9 +142,9 @@ export default function FechasAdminPage() {
                       Cierre: <span className="text-slate-400">{new Date(f.deadlineCierre).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
                   )}
-                  {f.fecha_fin && (
+                  {f.fechaFin && (
                     <p className="text-[10px] text-slate-500">
-                      Fin: <span className="text-slate-400">{new Date(f.fecha_fin).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                      Fin: <span className="text-slate-400">{new Date(f.fechaFin).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
                   )}
                 </div>
