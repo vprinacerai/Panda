@@ -12,8 +12,10 @@ function cookieResponse(body: object, token: string) {
 
 export async function POST(req: NextRequest) {
   let { email, password, nombreDT, torneoId } = await req.json()
-if (!torneoId || torneoId === "") torneoId = null
-
+if (!torneoId || torneoId === "") {
+  const [torneo] = await sql`SELECT id FROM torneos LIMIT 1`
+  torneoId = torneo?.id
+}
   if (!email || !password || !nombreDT) {
     return Response.json({ exito: false, mensaje: 'Todos los campos son requeridos.' }, { status: 400 })
   }
