@@ -52,7 +52,8 @@ export default function AdminFechaPage() {
   useEffect(() => {
     fetch(`/api/admin/fecha/${fechaId}`)
       .then(r => { if (r.status === 401 || r.status === 403) { router.replace('/'); return null } return r.json() })
-      .then(data => { if (data) { setJugadores(data.jugadores ?? data); setFechaInfo(data.fecha ?? null); setCargando(false) } })
+      .then(data => { if (data) { setJugadores(data.jugadores ?? []); setFechaInfo(data.fecha ?? null); setCargando(false) } })
+      .catch(() => { toast('Error al cargar los datos.', 'error'); setCargando(false) })
   }, [fechaId])
 
   function updateStat(id: string, field: string, value: boolean | number) {
@@ -105,7 +106,7 @@ export default function AdminFechaPage() {
         />
       )}
 
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <button onClick={() => router.push('/admin/fechas')}

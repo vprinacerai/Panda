@@ -113,7 +113,7 @@ export default function JugadoresPage() {
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
           placeholder="Buscar jugador o equipo..."
-          className="bg-[#111827] border border-white/10 text-white rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-blue-500/60 transition-colors w-52"
+          className="bg-[#111827] border border-white/10 text-white rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-blue-500/60 transition-colors flex-1 min-w-[160px]"
         />
         <select value={filtroEquipo} onChange={e => setFiltroEquipo(e.target.value)}
           className="bg-[#111827] border border-white/10 text-white rounded-lg px-3 py-2 text-xs font-semibold outline-none cursor-pointer">
@@ -138,9 +138,11 @@ export default function JugadoresPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: '#06090f' }}>
-                {['Jugador', 'Equipo', 'Posición', 'Estado', 'Acciones'].map(h => (
-                  <th key={h} className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 px-4 py-3 text-left border-b border-white/6">{h}</th>
-                ))}
+                <th className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 px-4 py-3 text-left border-b border-white/6">Jugador</th>
+                <th className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 px-4 py-3 text-left border-b border-white/6 hidden sm:table-cell">Equipo</th>
+                <th className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 px-4 py-3 text-left border-b border-white/6">Posición</th>
+                <th className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 px-4 py-3 text-left border-b border-white/6 hidden sm:table-cell">Estado</th>
+                <th className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 px-4 py-3 text-left border-b border-white/6">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -155,17 +157,20 @@ export default function JugadoresPage() {
                       style={{ background: 'rgba(29,107,243,0.15)', border: '1px solid rgba(29,107,243,0.3)', color: '#60a5fa' }}>
                       {j.nombre.slice(0, 2).toUpperCase()}
                     </div>
-                    <span className="font-semibold text-sm text-white">{j.nombre}</span>
+                    <div>
+                      <span className="font-semibold text-sm text-white">{j.nombre}</span>
+                      <p className="text-[10px] text-slate-500 sm:hidden">{j.equipo}</p>
+                    </div>
                   </div>
                 </td>
-                  <td className="px-4 py-3 text-sm text-slate-400">{j.equipo}</td>
+                  <td className="px-4 py-3 text-sm text-slate-400 hidden sm:table-cell">{j.equipo}</td>
                   <td className="px-4 py-3">
                     <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
                       style={{ background: `${POS_COLOR[j.posicion]}22`, color: POS_COLOR[j.posicion] }}>
                       {POS_LABEL[j.posicion]}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hidden sm:table-cell">
                     <span className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full ${j.activo ? 'bg-green-500/10 text-green-400' : 'bg-slate-500/10 text-slate-500'}`}>
                       {j.activo ? 'Activo' : 'Baja'}
                     </span>

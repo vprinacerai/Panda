@@ -12,9 +12,9 @@ interface Jugador {
 }
 
 interface EquipoGuardado {
-  nombre_equipo: string
-  capitan_id: string | null
-  jugadores_ids: string[]
+  nombreEquipo: string
+  capitanId: string | null
+  jugadoresIds: string[]
 }
 
 interface Props {
@@ -76,16 +76,18 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
   const [guardando, setGuardando] = useState(false)
   const [countdown, setCountdown] = useState('')
   const [modo, setModo] = useState<'ver' | 'editar'>(equipo ? 'ver' : 'editar')
+  const [slotActivo, setSlotActivo] = useState<{ key: string; pos: string } | null>(null)
+  const [busquedaSlot, setBusquedaSlot] = useState('')
 
   // Cargar equipo guardado y entrar en modo ver
   useEffect(() => {
     if (equipo) {
-      setNombreEquipo(equipo.nombre_equipo)
-      setCapitanId(equipo.capitan_id)
+      setNombreEquipo(equipo.nombreEquipo)
+      setCapitanId(equipo.capitanId)
       setModo('ver')
 
       const byPos: Record<string, string[]> = { ARQ: [], DEF: [], VOL: [], DEL: [] }
-      equipo.jugadores_ids.forEach(id => {
+      ;(equipo.jugadoresIds ?? []).forEach(id => {
         const j = jugadores.find(x => x.id === id)
         if (j) byPos[j.posicion].push(id)
       })
@@ -290,6 +292,56 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
 
   return (
     <form onSubmit={enviar} noValidate>
+      {/* Modal buscador de jugadores */}
+      {slotActivo && (
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-3 sm:p-4" style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setSlotActivo(null)}>
+          <div className="w-full max-w-md bg-[#111827] rounded-2xl border border-white/10 shadow-2xl flex flex-col"
+            style={{ maxHeight: '80vh' }}
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
+              <span className="font-['Bebas_Neue'] text-lg tracking-wide" style={{ color: POS_COLORS[slotActivo.pos].text }}>
+                {TITULOS[slotActivo.pos]}
+              </span>
+              <button type="button" onClick={() => setSlotActivo(null)} className="text-slate-500 hover:text-white text-lg leading-none">✕</button>
+            </div>
+            <div className="px-4 pt-3 pb-2">
+              <input
+                autoFocus
+                value={busquedaSlot}
+                onChange={e => setBusquedaSlot(e.target.value)}
+                placeholder="Buscar jugador o equipo..."
+                className="w-full bg-[#060c18] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500/60"
+              />
+            </div>
+            <div className="overflow-y-auto flex-1 px-2 pb-3">
+              <button type="button"
+                onClick={() => { setSelecciones(prev => ({ ...prev, [slotActivo.key]: '' })); if (capitanId === selecciones[slotActivo.key]) setCapitanId(null); setSlotActivo(null) }}
+                className="w-full text-left px-4 py-2 text-xs text-slate-600 hover:bg-white/5 rounded-lg mb-1 italic">
+                — Sin jugador
+              </button>
+              {jugadoresPorPos(slotActivo.pos)
+                .filter(j => !busquedaSlot || j.nombre.toLowerCase().includes(busquedaSlot.toLowerCase()) || j.equipo.toLowerCase().includes(busquedaSlot.toLowerCase()))
+                .map(j => {
+                  const yaElegido = Object.entries(selecciones).some(([k, v]) => v === j.id && k !== slotActivo.key)
+                  return (
+                    <button type="button" key={j.id}
+                      onClick={() => { if (!yaElegido) { setSelecciones(prev => ({ ...prev, [slotActivo.key]: j.id })); setSlotActivo(null); setBusquedaSlot('') } }}
+                      disabled={yaElegido}
+                      className={`w-full text-left px-4 py-2.5 rounded-xl transition-colors flex items-center justify-between gap-3 ${yaElegido ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/5 cursor-pointer'}`}>
+                      <div>
+                        <span className="text-sm font-semibold text-white block">{j.nombre}</span>
+                        <span className="text-[11px] text-slate-500">{j.equipo}</span>
+                      </div>
+                      {yaElegido && <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider shrink-0">ya elegido</span>}
+                    </button>
+                  )
+                })
+              }
+            </div>
+          </div>
+        </div>
+      )}
       {/* Market status banner */}
       {mercadoAbierto ? (
         deadlineCierre && countdown && (
@@ -404,18 +456,15 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
                       <p className="text-[7px] sm:text-[9px] text-slate-700 italic mb-1 sm:mb-1.5">—</p>
                     )}
 
-                    <select
-                      value={selectedId}
-                      onChange={e => setSelecciones(prev => ({ ...prev, [slotKey]: e.target.value }))}
-                      className="w-full text-white rounded-lg px-1 sm:px-2 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-semibold cursor-pointer outline-none transition-colors"
-                      style={{ background: '#0a1020', border: `1px solid ${selectedId ? pc.border : 'rgba(255,255,255,0.08)'}` }}
+                    <button
+                      type="button"
+                      onClick={() => { if (mercadoAbierto) { setSlotActivo({ key: slotKey, pos: linea.pos }); setBusquedaSlot('') } }}
+                      className="w-full rounded-lg px-1.5 sm:px-2 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-semibold transition-colors text-left"
+                      style={{ background: '#0a1020', border: `1px solid ${selectedId ? pc.border : 'rgba(255,255,255,0.08)'}`, color: selectedId ? '#fff' : '#475569', cursor: mercadoAbierto ? 'pointer' : 'default' }}
                       disabled={!mercadoAbierto}
                     >
-                      <option value="">—</option>
-                      {jugadoresPorPos(linea.pos).map(j => (
-                        <option key={j.id} value={j.id}>{j.nombre} ({j.equipo})</option>
-                      ))}
-                    </select>
+                      {selectedPlayer ? selectedPlayer.nombre : '+ Elegir'}
+                    </button>
 
                     {selectedId && mercadoAbierto && (
                       <button

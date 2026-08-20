@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { toast } from '@/components/Toaster'
 import { ConfirmModal } from '@/components/ConfirmModal'
 
@@ -157,10 +158,10 @@ export default function FechasAdminPage() {
               </span>
               {!f.publicada && (
                 <>
-                  <button onClick={() => router.push(`/admin/fecha/${f.id}`)}
+                  <a href={`/admin/fecha/${f.id}`}
                     className="text-xs font-bold text-cyan-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-cyan-500/20">
                     Cargar Stats
-                  </button>
+                  </a>
                   <button onClick={() => setConfirmPublicar(f)}
                     className="text-xs font-bold text-green-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-green-500/20">
                     Publicar

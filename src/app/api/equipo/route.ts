@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
   if (process.env.DEV_MODE === 'true') {
     devStore[session!.userId] = { nombre_equipo: nombreEquipo, capitan_id: capitanId ?? null, jugadores_ids: jugadoresIds }
-    return Response.json({ exito: true, mensaje: '✅ Alineación guardada correctamente.' })
+    return Response.json({ exito: true, mensaje: 'Alineación guardada correctamente.' })
   }
 
   const [fechaConfig] = await sql`
@@ -108,5 +108,5 @@ export async function POST(req: NextRequest) {
       updated_at    = EXCLUDED.updated_at
   `
 
-  return Response.json({ exito: true, mensaje: '✅ Alineación guardada correctamente.' })
+  return Response.json({ exito: true, mensaje: 'Alineación guardada correctamente.' })
 }

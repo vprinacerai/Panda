@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ fec
   const { fechaId } = await params
 
   if (process.env.DEV_MODE === 'true') {
-    return Response.json({ exito: true, mensaje: '✅ Stats guardadas.' })
+    return Response.json({ exito: true, mensaje: 'Stats guardadas.' })
   }
 
   const statsArray: Array<{

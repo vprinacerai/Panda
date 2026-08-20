@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: '#0a0e17', color: '#ffffff', minHeight: '100vh' }}>
+      <body suppressHydrationWarning style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: '#0a0e17', color: '#ffffff', minHeight: '100vh' }}>
         <Toaster />
         {children}
       </body>

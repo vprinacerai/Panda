@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
-  { href: '/admin', label: 'Overview' },
+  { href: '/admin', label: 'Inicio' },
   { href: '/admin/jugadores', label: 'Jugadores' },
   { href: '/admin/fechas', label: 'Fechas' },
   { href: '/admin/torneo', label: 'Config.' },
@@ -22,12 +22,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="font-['Bebas_Neue'] text-base tracking-widest text-cyan-400">PANDA</span>
             <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-600 hidden sm:block">Admin</span>
           </button>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5 overflow-x-auto">
             {NAV.map(n => {
               const active = n.href === '/admin' ? pathname === '/admin' : pathname.startsWith(n.href)
               return (
                 <button key={n.href} onClick={() => router.push(n.href)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${active ? 'text-white' : 'text-slate-500 hover:text-slate-200'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${active ? 'text-white' : 'text-slate-500 hover:text-slate-200'}`}
                   style={active ? { background: 'rgba(255,255,255,0.08)' } : {}}>
                   {n.label}
                 </button>

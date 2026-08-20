@@ -62,7 +62,7 @@ export default function AdminPage() {
       </div>
 
       {/* Stats strip */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 mb-8">
         {[
           { label: 'Jugadores', value: stats?.jugadores ?? 0, sub: 'activos', color: '#60a5fa', href: '/admin/jugadores' },
           { label: 'Fechas', value: stats?.fechas ?? 0, sub: 'creadas', color: '#a78bfa', href: '/admin/fechas' },
@@ -119,11 +119,11 @@ export default function AdminPage() {
                     )}
                   </div>
                 </div>
-                <button onClick={() => router.push(`/admin/fecha/${f.id}`)}
+                <a href={`/admin/fecha/${f.id}`}
                   className="px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-all hover:brightness-110"
                   style={{ background: 'linear-gradient(135deg,#1d6bf3,#0d4fd4)' }}>
                   Cargar Stats →
-                </button>
+                </a>
               </div>
             ))}
           </div>

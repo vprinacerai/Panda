@@ -9,7 +9,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ fec
   if (authError) return authError
 
   if (process.env.DEV_MODE === 'true') {
-    return Response.json({ exito: true, mensaje: '✅ Fecha publicada.' })
+    return Response.json({ exito: true, mensaje: 'Fecha publicada.' })
   }
 
   await sql`
@@ -17,5 +17,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ fec
     WHERE id = ${fechaId} AND torneo_id = ${session!.torneoId}
   `
 
-  return Response.json({ exito: true, mensaje: '✅ Fecha publicada. El ranking está actualizado.' })
+  return Response.json({ exito: true, mensaje: 'Fecha publicada. El ranking está actualizado.' })
 }
