@@ -78,7 +78,6 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
   const [modo, setModo] = useState<'ver' | 'editar'>(equipo ? 'ver' : 'editar')
   const [slotActivo, setSlotActivo] = useState<{ key: string; pos: string } | null>(null)
   const [busquedaSlot, setBusquedaSlot] = useState('')
-  const [filtroClub, setFiltroClub] = useState('')
 
   // Cargar equipo guardado y entrar en modo ver
   useEffect(() => {
@@ -311,38 +310,10 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
                 autoFocus
                 value={busquedaSlot}
                 onChange={e => setBusquedaSlot(e.target.value)}
-                placeholder="Buscar jugador..."
+                placeholder="Buscar jugador o equipo..."
                 className="w-full bg-[#060c18] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500/60"
               />
             </div>
-            {/* Filtro por club */}
-            {(() => {
-              const clubs = Array.from(new Set(jugadoresPorPos(slotActivo.pos).map(j => j.equipo))).sort()
-              return (
-                <div className="flex gap-1.5 px-4 pb-2 overflow-x-auto shrink-0">
-                  <button type="button"
-                    onClick={() => setFiltroClub('')}
-                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 ${
-                      filtroClub === '' ? 'text-white' : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                    style={filtroClub === '' ? { background: 'rgba(29,107,243,0.25)', border: '1px solid rgba(29,107,243,0.5)' } : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    Todos
-                  </button>
-                  {clubs.map(club => (
-                    <button type="button" key={club}
-                      onClick={() => setFiltroClub(c => c === club ? '' : club)}
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 ${
-                        filtroClub === club ? 'text-white' : 'text-slate-500 hover:text-slate-300'
-                      }`}
-                      style={filtroClub === club
-                        ? { background: 'rgba(0,210,255,0.15)', border: '1px solid rgba(0,210,255,0.4)' }
-                        : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      {club}
-                    </button>
-                  ))}
-                </div>
-              )
-            })()}
             <div className="overflow-y-auto flex-1 px-2 pb-3">
               <button type="button"
                 onClick={() => { setSelecciones(prev => ({ ...prev, [slotActivo.key]: '' })); if (capitanId === selecciones[slotActivo.key]) setCapitanId(null); setSlotActivo(null) }}
@@ -350,16 +321,12 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
                 — Sin jugador
               </button>
               {jugadoresPorPos(slotActivo.pos)
-                .filter(j => {
-                  const matchClub = !filtroClub || j.equipo === filtroClub
-                  const matchBusqueda = !busquedaSlot || j.nombre.toLowerCase().includes(busquedaSlot.toLowerCase()) || j.equipo.toLowerCase().includes(busquedaSlot.toLowerCase())
-                  return matchClub && matchBusqueda
-                })
+                .filter(j => !busquedaSlot || j.nombre.toLowerCase().includes(busquedaSlot.toLowerCase()) || j.equipo.toLowerCase().includes(busquedaSlot.toLowerCase()))
                 .map(j => {
                   const yaElegido = Object.entries(selecciones).some(([k, v]) => v === j.id && k !== slotActivo.key)
                   return (
                     <button type="button" key={j.id}
-                      onClick={() => { if (!yaElegido) { setSelecciones(prev => ({ ...prev, [slotActivo.key]: j.id })); setSlotActivo(null); setBusquedaSlot(''); setFiltroClub('') } }}
+                      onClick={() => { if (!yaElegido) { setSelecciones(prev => ({ ...prev, [slotActivo.key]: j.id })); setSlotActivo(null); setBusquedaSlot('') } }}
                       disabled={yaElegido}
                       className={`w-full text-left px-4 py-2.5 rounded-xl transition-colors flex items-center justify-between gap-3 ${yaElegido ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/5 cursor-pointer'}`}>
                       <div>
@@ -491,7 +458,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
 
                     <button
                       type="button"
-                      onClick={() => { if (mercadoAbierto) { setSlotActivo({ key: slotKey, pos: linea.pos }); setBusquedaSlot(''); setFiltroClub('') } }}
+                      onClick={() => { if (mercadoAbierto) { setSlotActivo({ key: slotKey, pos: linea.pos }); setBusquedaSlot('') } }}
                       className="w-full rounded-lg px-1.5 sm:px-2 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-semibold transition-colors text-left"
                       style={{ background: '#0a1020', border: `1px solid ${selectedId ? pc.border : 'rgba(255,255,255,0.08)'}`, color: selectedId ? '#fff' : '#475569', cursor: mercadoAbierto ? 'pointer' : 'default' }}
                       disabled={!mercadoAbierto}
