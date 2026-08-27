@@ -4,11 +4,13 @@ import crypto from 'crypto'
 // Inicia el flujo OAuth: genera state CSRF y redirige a Google
 export async function GET(req: NextRequest) {
   const torneoId = req.nextUrl.searchParams.get('torneoId') ?? process.env.NEXT_PUBLIC_TORNEO_ID ?? ''
-  const state = `${crypto.randomBytes(16).toString('hex')}:${torneoId}`
+  // Usar el origen real para que funcione en pandafut.com y en vercel.app
+  const origin = req.nextUrl.origin
+  const state = `${crypto.randomBytes(16).toString('hex')}:${torneoId}:${origin}`
 
   const params = new URLSearchParams({
     client_id:     process.env.GOOGLE_CLIENT_ID!,
-    redirect_uri:  `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/google/callback`,
+    redirect_uri:  `${origin}/api/auth/google/callback`,
     response_type: 'code',
     scope:         'openid email profile',
     state,
