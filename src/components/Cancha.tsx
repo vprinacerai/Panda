@@ -137,7 +137,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
   async function enviar(e: React.FormEvent) {
     e.preventDefault()
     if (!nombreEquipo.trim()) { toast('Ingresá un nombre para tu equipo.', 'error'); return }
-    if (nombreEquipo.trim().length > 20) { toast('El nombre no puede superar 20 caracteres.', 'error'); return }
+    if (nombreEquipo.trim().length > 15) { toast('El nombre no puede superar 15 caracteres.', 'error'); return }
     // Contar solo los slots de la formación actual
     const ids = esquema.flatMap(l => Array.from({ length: l.cant }, (_, i) => selecciones[`${l.pos}_${i}`] ?? '')).filter(Boolean)
     if (ids.length !== 7) { toast('Completá todos los cupos de la formación antes de guardar.', 'error'); return }
@@ -203,7 +203,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
         {/* Team header */}
         <div className="flex items-center justify-between mb-4 px-1">
           <div>
-            <h3 className="font-['Bebas_Neue'] text-2xl tracking-wide text-white leading-none">{nombreEquipo || '—'}</h3>
+            <h3 className="font-['Bebas_Neue'] text-xl sm:text-2xl tracking-wide text-white leading-none truncate max-w-[180px] sm:max-w-[260px]">{nombreEquipo || '—'}</h3>
             <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest mt-0.5">Formación {formacion}</p>
           </div>
           {mercadoAbierto && (
@@ -386,7 +386,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
           <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">🛡️ Nombre del Equipo</label>          <input
             value={nombreEquipo}
             onChange={e => setNombreEquipo(e.target.value)}
-            maxLength={20}
+            maxLength={15}
             className="w-full bg-[#060c18] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm font-semibold outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 transition-all placeholder:text-slate-700"
             placeholder="Ej: Panda FC"
             disabled={!mercadoAbierto}
