@@ -17,6 +17,38 @@ body {
   color: #f0f4ff;
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
+  /* Safe area para iPhone con notch/dynamic island */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Evita el zoom automático en iOS al enfocar inputs (require font-size >= 16px) */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Tap highlight transparente en móvil */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scroll suave nativo en iOS */
+.overflow-y-auto, .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Botones y links: mínimo 44px en móvil para tap targets cómodos */
+@media (max-width: 640px) {
+  button, a[href] {
+    min-height: 44px;
+  }
+}
+
+/* Modales: evitar scroll del fondo en iOS */
+.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 @keyframes panda-toast-in {
