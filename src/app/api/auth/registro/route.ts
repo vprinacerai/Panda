@@ -19,6 +19,12 @@ if (!torneoId || torneoId === "") {
   if (!email || !password || !nombreDT) {
     return Response.json({ exito: false, mensaje: 'Todos los campos son requeridos.' }, { status: 400 })
   }
+  if (password.length < 8) {
+    return Response.json({ exito: false, mensaje: 'La contraseña debe tener al menos 8 caracteres.' }, { status: 400 })
+  }
+  if (nombreDT.trim().length > 20) {
+    return Response.json({ exito: false, mensaje: 'El apodo no puede superar 20 caracteres.' }, { status: 400 })
+  }
 
   if (process.env.DEV_MODE === 'true') {
     const token = await signToken({ userId: 'dev-user-id', email, nombreDT, torneoId, rol: 'jugador' })

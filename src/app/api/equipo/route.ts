@@ -76,7 +76,9 @@ export async function POST(req: NextRequest) {
   if (!nombreEquipo || !jugadoresIds || jugadoresIds.length !== 7 || !fechaConfigId) {
     return Response.json({ error: 'Alineación inválida. Se requieren exactamente 7 jugadores.' }, { status: 400 })
   }
-
+  if (nombreEquipo.trim().length > 20) {
+    return Response.json({ error: 'El nombre del equipo no puede superar 20 caracteres.' }, { status: 400 })
+  }
   if (new Set(jugadoresIds).size !== jugadoresIds.length) {
     return Response.json({ error: 'Hay jugadores repetidos en la alineación.' }, { status: 400 })
   }

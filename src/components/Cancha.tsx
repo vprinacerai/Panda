@@ -137,10 +137,19 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
   async function enviar(e: React.FormEvent) {
     e.preventDefault()
     if (!nombreEquipo.trim()) { toast('Ingresá un nombre para tu equipo.', 'error'); return }
-    const ids = Object.values(selecciones).filter(Boolean)
-    if (ids.length !== 7) { toast('Debes seleccionar exactamente 7 jugadores.', 'error'); return }
+    if (nombreEquipo.trim().length > 20) { toast('El nombre no puede superar 20 caracteres.', 'error'); return }
+    // Contar solo los slots de la formación actual
+    const ids = esquema.flatMap(l => Array.from({ length: l.cant }, (_, i) => selecciones[`${l.pos}_${i}`] ?? '')).filter(Boolean)
+    if (ids.length !== 7) { toast('Completá todos los cupos de la formación antes de guardar.', 'error'); return }
     if (new Set(ids).size !== ids.length) { toast('Hay jugadores repetidos en la alineación.', 'error'); return }
     if (!capitanId) { toast('Designá un Capitán para tu equipo.', 'error'); return }
+    // Máximo 3 jugadores del mismo club
+    const clubCount: Record<string, number> = {}
+    for (const id of ids) {
+      const club = jugadores.find(j => j.id === id)?.equipo ?? ''
+      clubCount[club] = (clubCount[club] ?? 0) + 1
+      if (clubCount[club] > 3) { toast(`Máximo 3 jugadores del mismo club (${club}).`, 'error'); return }
+    }
 
     setGuardando(true)
     const res = await fetch('/api/equipo', {
@@ -324,16 +333,19 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
                 .filter(j => !busquedaSlot || j.nombre.toLowerCase().includes(busquedaSlot.toLowerCase()) || j.equipo.toLowerCase().includes(busquedaSlot.toLowerCase()))
                 .map(j => {
                   const yaElegido = Object.entries(selecciones).some(([k, v]) => v === j.id && k !== slotActivo.key)
+                  const clubEnUso = Object.entries(selecciones).filter(([k, v]) => v && k !== slotActivo.key && jugadores.find(x => x.id === v)?.equipo === j.equipo).length
+                  const clubLimitado = !yaElegido && clubEnUso >= 3
                   return (
                     <button type="button" key={j.id}
-                      onClick={() => { if (!yaElegido) { setSelecciones(prev => ({ ...prev, [slotActivo.key]: j.id })); setSlotActivo(null); setBusquedaSlot('') } }}
-                      disabled={yaElegido}
-                      className={`w-full text-left px-4 py-2.5 rounded-xl transition-colors flex items-center justify-between gap-3 ${yaElegido ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/5 cursor-pointer'}`}>
+                      onClick={() => { if (!yaElegido && !clubLimitado) { setSelecciones(prev => ({ ...prev, [slotActivo.key]: j.id })); setSlotActivo(null); setBusquedaSlot('') } }}
+                      disabled={yaElegido || clubLimitado}
+                      className={`w-full text-left px-4 py-2.5 rounded-xl transition-colors flex items-center justify-between gap-3 ${yaElegido || clubLimitado ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/5 cursor-pointer'}`}>
                       <div>
                         <span className="text-sm font-semibold text-white block">{j.nombre}</span>
                         <span className="text-[11px] text-slate-500">{j.equipo}</span>
                       </div>
                       {yaElegido && <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider shrink-0">ya elegido</span>}
+                      {!yaElegido && clubLimitado && <span className="text-[9px] font-bold text-orange-600 uppercase tracking-wider shrink-0">límite club</span>}
                     </button>
                   )
                 })
@@ -374,6 +386,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
           <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">🛡️ Nombre del Equipo</label>          <input
             value={nombreEquipo}
             onChange={e => setNombreEquipo(e.target.value)}
+            maxLength={20}
             className="w-full bg-[#060c18] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm font-semibold outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 transition-all placeholder:text-slate-700"
             placeholder="Ej: Panda FC"
             disabled={!mercadoAbierto}

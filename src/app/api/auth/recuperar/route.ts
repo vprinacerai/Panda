@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
   const codigo = Math.floor(100000 + Math.random() * 900000).toString()
   await sql`UPDATE usuarios SET codigo_recuperacion = ${codigo} WHERE id = ${usuario.id}`
 
-  // TODO: integrar Resend o Nodemailer para envío real
-  console.log(`[DEV] Código de recuperación para ${emailNorm}: ${codigo}`)
+  // TODO: reemplazar por Resend/Nodemailer en producción
+  console.log(`[RECUPERACIÓN] Código para ${emailNorm}: ${codigo}`)
 
-  return Response.json({ exito: true, mensaje: 'Si el correo existe, recibirás un código.' })
+  return Response.json({ exito: true, mensaje: `Tu código es: ${codigo} — Ingresalo en el formulario.` })
 }

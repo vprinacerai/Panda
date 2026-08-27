@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
@@ -12,6 +13,12 @@ const NAV = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
+
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => r.json()).then(data => {
+      if (!data.usuario || data.usuario.rol !== 'admin') router.replace('/')
+    })
+  }, [])
 
   return (
     <div className="min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(29,107,243,0.06) 0%, transparent 60%), #0a0e17' }}>

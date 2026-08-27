@@ -186,7 +186,8 @@ export default function AuthPage() {
                     </div>
                     <div>
                       <label className="block text-[11px] font-bold uppercase text-slate-500 tracking-wider mb-1.5">Contraseña</label>
-                      <input name="password" type="password" required autoComplete="new-password" className={inputCls} placeholder="••••••••" />
+                      <input name="password" type="password" required minLength={8} autoComplete="new-password" className={inputCls} placeholder="Mínimo 8 caracteres" />
+                      <p className="text-[10px] text-slate-600 mt-1">Mínimo 8 caracteres</p>
                     </div>
                     <button type="submit" disabled={cargando} className={btnCls} style={btnStyle}>
                       {cargando ? 'Creando cuenta...' : 'Crear Cuenta'}
