@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
 
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
-      from: process.env.RESEND_FROM ?? 'PANDA Fantasy <noreply@resend.dev>',
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM ?? 'PANDA Fantasy <onboarding@resend.dev>',
       to: emailNorm,
       subject: `Tu código de recuperación — ${torneoNombre}`,
       html: `
@@ -43,6 +43,12 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     })
+    if (error) {
+      console.error('[RESEND ERROR]', JSON.stringify(error))
+      // Mostrar código en respuesta como fallback si Resend falla
+      return Response.json({ exito: true, mensaje: `Código: ${codigo} (el email falló, usá este código directamente)` })
+    }
+    console.log('[RESEND OK]', data?.id)
     return Response.json({ exito: true, mensaje: 'Te enviamos el código a tu correo. Revisá también el spam.' })
   }
 
