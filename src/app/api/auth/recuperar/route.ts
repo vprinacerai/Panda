@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM ?? 'PANDA Fantasy <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM ?? 'PANDA Fantasy <noreply@pandafut.com>',
       to: emailNorm,
       subject: `Tu código de recuperación — ${torneoNombre}`,
       html: `
