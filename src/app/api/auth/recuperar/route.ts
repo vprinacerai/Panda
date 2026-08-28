@@ -26,11 +26,8 @@ export async function POST(req: NextRequest) {
 
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY)
-    // Asegurar formato correcto si la env var no tiene < >
-    const rawFrom = process.env.RESEND_FROM ?? 'PANDA Fantasy <noreply@pandafut.com>'
-    const from = rawFrom.includes('<') ? rawFrom : `PANDA Fantasy <${rawFrom}>`
     const { data, error } = await resend.emails.send({
-      from,
+      from: 'PANDA Fantasy <noreply@pandafut.com>',
       to: emailNorm,
       subject: `Tu código de recuperación — ${torneoNombre}`,
       html: `
