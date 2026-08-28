@@ -73,7 +73,7 @@ export default function AuthPage() {
     const data = await res.json()
     setCargando(false)
     toast(data.mensaje ?? (data.exito ? 'Contraseña actualizada.' : 'Código inválido.'), data.exito ? 'success' : 'error')
-    if (data.exito) setVista('login')
+    if (data.exito) router.push('/app')
   }
 
   const inputCls = "w-full bg-[#060c18] border border-white/10 text-white rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all placeholder:text-slate-600"
