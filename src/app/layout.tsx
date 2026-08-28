@@ -5,6 +5,10 @@ import { Toaster } from "@/components/Toaster"
 export const metadata: Metadata = {
   title: "PANDA Fantasy",
   description: "Fantasy fútbol para ligas amateurs de Canning",
+  icons: {
+    icon: "https://lh3.googleusercontent.com/d/14Wc0C7x__d6ZY_popX5OQH8EhhOPQSu8",
+    apple: "https://lh3.googleusercontent.com/d/14Wc0C7x__d6ZY_popX5OQH8EhhOPQSu8",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
