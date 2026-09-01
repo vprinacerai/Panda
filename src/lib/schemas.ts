@@ -55,7 +55,8 @@ export async function parseBody<T>(req: Request, schema: z.ZodSchema<T>): Promis
     const body = await req.json()
     const result = schema.safeParse(body)
     if (!result.success) {
-      const mensaje = (result.error as import('zod').ZodError).errors.map((e: import('zod').ZodIssue) => e.message).join('. ')
+      const issues: Array<{ message: string }> = (result.error as any).issues ?? []
+      const mensaje = issues.map(e => e.message).join('. ') || 'Datos inválidos.'
       return Response.json({ error: mensaje }, { status: 400 })
     }
     return { data: result.data }
