@@ -27,6 +27,17 @@ export default function JugadoresPage() {
   const [guardando, setGuardando] = useState(false)
   const [confirmBaja, setConfirmBaja] = useState<Jugador | null>(null)
   const [importando, setImportando] = useState(false)
+  const [confirmLimpiar, setConfirmLimpiar] = useState(false)
+  const [textoConfirm, setTextoConfirm] = useState('')
+
+  async function limpiarPlantel() {
+    const r = await fetch('/api/admin/jugadores', { method: 'DELETE' })
+    const data = await r.json()
+    if (data.exito) { toast('Plantel eliminado permanentemente.', 'success'); await cargar() }
+    else toast(data.error ?? 'Error al eliminar.', 'error')
+    setConfirmLimpiar(false)
+    setTextoConfirm('')
+  }
 
   async function exportar() {
     const a = document.createElement('a')
@@ -114,6 +125,41 @@ export default function JugadoresPage() {
           onCancel={() => setConfirmBaja(null)}
         />
       )}
+
+      {/* Modal doble confirmación limpiar plantel */}
+      {confirmLimpiar && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)' }}>
+          <div className="w-full max-w-sm bg-[#111827] rounded-2xl border border-red-500/30 p-6 shadow-2xl">
+            <div className="flex items-start gap-3 mb-4">
+              <span className="text-2xl flex-shrink-0">🗑️</span>
+              <div>
+                <h3 className="font-['Bebas_Neue'] text-xl text-red-400 tracking-wide">Borrar todo el plantel</h3>
+                <p className="text-sm text-slate-400 mt-1">Se eliminarán <strong className="text-white">todos los jugadores</strong>, estadísticas y equipos guardados. Esta acción es <strong className="text-red-400">permanente e irreversible</strong>.</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mb-2">Escribí <strong className="text-red-400">BORRAR</strong> para confirmar:</p>
+            <input
+              autoFocus
+              value={textoConfirm}
+              onChange={e => setTextoConfirm(e.target.value)}
+              placeholder="BORRAR"
+              className="w-full bg-[#060c18] border border-red-500/30 text-white rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-red-500 mb-4 tracking-widest"
+            />
+            <div className="flex gap-3">
+              <button onClick={() => { setConfirmLimpiar(false); setTextoConfirm('') }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition-colors"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                Cancelar
+              </button>
+              <button onClick={limpiarPlantel} disabled={textoConfirm !== 'BORRAR'}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-110"
+                style={{ background: 'linear-gradient(135deg,#dc2626,#b91c1c)' }}>
+                Borrar todo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
@@ -131,6 +177,11 @@ export default function JugadoresPage() {
             {importando ? '⏳ Importando...' : '⬆ Importar Excel'}
             <input type="file" accept=".xlsx,.xls" className="hidden" onChange={importar} disabled={importando} />
           </label>
+          <button onClick={() => { setConfirmLimpiar(true); setTextoConfirm('') }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-red-400 hover:text-white transition-colors hover:bg-red-500/20"
+            style={{ border: '1px solid rgba(239,68,68,0.2)' }}>
+            🗑️ Limpiar plantel
+          </button>
           <button
             onClick={abrirCrear}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110"

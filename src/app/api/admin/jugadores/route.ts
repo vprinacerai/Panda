@@ -32,3 +32,16 @@ export async function POST(req: NextRequest) {
   `
   return Response.json(j, { status: 201 })
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await getSession(req)
+  const authError = requireAdmin(session)
+  if (authError) return authError
+
+  // Borra jugadores, estadísticas y equipos guardados del torneo
+  await sql`DELETE FROM equipos_usuarios WHERE torneo_id = ${session!.torneoId}`
+  await sql`DELETE FROM estadisticas WHERE torneo_id = ${session!.torneoId}`
+  await sql`DELETE FROM jugadores WHERE torneo_id = ${session!.torneoId}`
+
+  return Response.json({ exito: true, mensaje: 'Plantel eliminado.' })
+}
