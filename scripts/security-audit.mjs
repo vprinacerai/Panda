@@ -130,15 +130,17 @@ tieneXSS
 // ── A04: INSECURE DESIGN ─────────────────────────────────────────────────────
 console.log('\n🏗️  A04 — Insecure Design')
 
-// Rate limiting en login
+// Rate limiting en login — crear usuario temporal y probar brute force
+const tempEmailRL = `rl_test_${Date.now()}@security.test`
+await req('POST', '/api/auth/registro', { email: tempEmailRL, password: 'SecurePass123!', nombreDT: 'RLTest', torneoId: TORNEO_ID })
 const loginBrute = []
-for (let i = 0; i < 5; i++) {
-  const r = await req('POST', '/api/auth/login', { email: 'test@test.com', password: 'wrong', torneoId: TORNEO_ID })
+for (let i = 0; i < 6; i++) {
+  const r = await req('POST', '/api/auth/login', { email: tempEmailRL, password: 'wrongpass', torneoId: TORNEO_ID })
   loginBrute.push(r.status)
 }
 const bloqueado = loginBrute.some(s => s === 429)
 bloqueado
-  ? hallazgo('ok', 'A04', 'Rate limiting en login activo (429 después de intentos)')
+  ? hallazgo('ok', 'A04', 'Rate limiting en login activo — bloqueado tras 5 intentos (429)')
   : hallazgo('altos', 'A04', 'Sin rate limiting en /api/auth/login — vulnerable a brute force', 'Implementar rate limiting (ej: 5 intentos / 15 min por IP)')
 
 // Rate limiting en registro
