@@ -143,6 +143,10 @@ export async function GET(req: NextRequest) {
     await sql`CREATE INDEX IF NOT EXISTS idx_estadisticas_jugador ON estadisticas(jugador_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_usuarios_email       ON usuarios(torneo_id, email)`
 
+    // Migraciones: agregar columnas nuevas si no existen (idempotente)
+    await sql`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS login_attempts integer DEFAULT 0`
+    await sql`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS lockout_until timestamptz`
+
     log.push('✓ Schema creado')
 
     // ── SEED ──────────────────────────────────────────────────
