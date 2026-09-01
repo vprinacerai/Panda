@@ -85,7 +85,7 @@ log('Auth', '/me con sesión admin', meAdmin.data?.usuario?.rol === 'admin', `ro
 
 // Registro con password corta
 const regCorta = await req('POST', '/api/auth/registro', { email: 'test@test.com', password: '123', nombreDT: 'Test', torneoId: TORNEO_ID })
-log('Auth', 'Registro contraseña < 8 chars → rechaza', regCorta.data?.exito === false, regCorta.data?.mensaje)
+log('Auth', 'Registro contraseña < 8 chars → rechaza', regCorta.status === 400 || regCorta.data?.exito === false, regCorta.data?.mensaje ?? regCorta.data?.error)
 
 // Registro email duplicado
 const regDup = await req('POST', '/api/auth/registro', { email: 'admin@panda.com', password: 'password123', nombreDT: 'Dup', torneoId: TORNEO_ID })
