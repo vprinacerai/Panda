@@ -16,10 +16,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ fech
       numero          = COALESCE(${numero ?? null}, numero),
       deadline_cierre = COALESCE(${deadlineCierre ?? null}, deadline_cierre),
       fecha_fin       = COALESCE(${fechaFin ?? null}, fecha_fin)
-    WHERE id = ${fechaId} AND torneo_id = ${session!.torneoId} AND publicada = false
+    WHERE id = ${fechaId} AND torneo_id = ${session!.torneoId}
     RETURNING id, nombre_fecha, numero, deadline_cierre, fecha_fin, publicada
   `
-  if (!f) return Response.json({ error: 'Fecha no encontrada o ya publicada.' }, { status: 404 })
+  if (!f) return Response.json({ error: 'Fecha no encontrada.' }, { status: 404 })
   return Response.json(f)
 }
 

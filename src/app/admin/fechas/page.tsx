@@ -168,12 +168,12 @@ export default function FechasAdminPage() {
                     className="text-xs font-bold text-green-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-green-500/20">
                     Publicar
                   </button>
-                  <button onClick={() => abrirEditar(f)}
-                    className="text-xs font-bold text-blue-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-blue-500/20">
-                    Editar
-                  </button>
                 </>
               )}
+              <button onClick={() => abrirEditar(f)}
+                className="text-xs font-bold text-blue-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-blue-500/20">
+                Editar
+              </button>
               <button onClick={() => setConfirmEliminar(f)}
                 className="text-xs font-bold text-red-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-red-500/20">
                 Eliminar

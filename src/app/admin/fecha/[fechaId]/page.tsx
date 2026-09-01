@@ -122,11 +122,6 @@ export default function AdminFechaPage() {
           </div>
         </div>
         <div className="flex gap-2.5">
-          <button onClick={guardar} disabled={guardando}
-            className="px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:brightness-110 disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg,#1d6bf3,#0d4fd4)', boxShadow: '0 2px 12px rgba(29,107,243,0.35)' }}>
-            {guardando ? '⏳ Guardando...' : '💾 Guardar'}
-          </button>
           <button onClick={() => setConfirm(true)}
             className="px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:brightness-110"
             style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', boxShadow: '0 2px 12px rgba(22,163,74,0.3)' }}>
@@ -221,7 +216,12 @@ export default function AdminFechaPage() {
         })}
       </div>
 
-      <div className="sticky bottom-4 mt-6 flex justify-end">
+      <div className="sticky bottom-4 mt-6 flex justify-end gap-2.5">
+        <button onClick={() => setConfirm(true)}
+          className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm text-white shadow-2xl transition-all hover:brightness-110"
+          style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', boxShadow: '0 4px 24px rgba(22,163,74,0.4)' }}>
+          ✅ Publicar Fecha
+        </button>
         <button onClick={guardar} disabled={guardando}
           className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-2xl transition-all hover:brightness-110 disabled:opacity-50"
           style={{ background: 'linear-gradient(135deg,#1d6bf3,#0d4fd4)', boxShadow: '0 4px 24px rgba(29,107,243,0.5)' }}>
