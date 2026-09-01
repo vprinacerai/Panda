@@ -61,6 +61,13 @@ export async function POST(req: NextRequest) {
     return Response.json({ exito: false, mensaje: `Cuenta bloqueada temporalmente. Intentá en ${minutosRestantes} min.` }, { status: 429 })
   }
 
+  // Bloqueo expirado — resetear contador para que tenga 5 intentos frescos
+  if (tieneRateLimit && usuario.lockoutUntil && new Date() >= new Date(usuario.lockoutUntil)) {
+    await sql`UPDATE usuarios SET login_attempts = 0, lockout_until = NULL WHERE id = ${usuario.id}`
+    usuario.loginAttempts = 0
+    usuario.lockoutUntil = null
+  }
+
   const match = await bcrypt.compare(password, usuario.passwordHash)
   if (!match) {
     if (tieneRateLimit) {
