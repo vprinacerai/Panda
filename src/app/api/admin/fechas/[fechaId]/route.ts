@@ -29,10 +29,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ f
   if (authError) return authError
 
   const { fechaId } = await params
+  // Permite borrar cualquier fecha (publicada o no) — las stats y equipos se eliminan en cascada
   const [f] = await sql`
-    DELETE FROM config_fechas WHERE id = ${fechaId} AND torneo_id = ${session!.torneoId} AND publicada = false
+    DELETE FROM config_fechas WHERE id = ${fechaId} AND torneo_id = ${session!.torneoId}
     RETURNING id
   `
-  if (!f) return Response.json({ error: 'No se puede eliminar una fecha ya publicada.' }, { status: 400 })
+  if (!f) return Response.json({ error: 'Fecha no encontrada.' }, { status: 404 })
   return Response.json({ exito: true })
 }

@@ -94,7 +94,9 @@ export default function FechasAdminPage() {
       {confirmEliminar && (
         <ConfirmModal
           title="Eliminar Fecha"
-          message={`¿Eliminar "${confirmEliminar.nombreFecha}"? Esta acción no se puede deshacer.`}
+          message={confirmEliminar.publicada
+            ? `⚠️ "${confirmEliminar.nombreFecha}" está PUBLICADA. Se borrarán las stats y los equipos guardados para esa fecha. ¿Confirmar?`
+            : `¿Eliminar "${confirmEliminar.nombreFecha}"? Esta acción no se puede deshacer.`}
           confirmLabel="Eliminar"
           danger
           onConfirm={() => eliminar(confirmEliminar)}
@@ -170,12 +172,12 @@ export default function FechasAdminPage() {
                     className="text-xs font-bold text-blue-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-blue-500/20">
                     Editar
                   </button>
-                  <button onClick={() => setConfirmEliminar(f)}
-                    className="text-xs font-bold text-red-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-red-500/20">
-                    Eliminar
-                  </button>
                 </>
               )}
+              <button onClick={() => setConfirmEliminar(f)}
+                className="text-xs font-bold text-red-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-red-500/20">
+                Eliminar
+              </button>
             </div>
           </div>
         ))}

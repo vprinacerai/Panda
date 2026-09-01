@@ -26,6 +26,28 @@ export default function JugadoresPage() {
   const [form, setForm] = useState(emptyForm)
   const [guardando, setGuardando] = useState(false)
   const [confirmBaja, setConfirmBaja] = useState<Jugador | null>(null)
+  const [importando, setImportando] = useState(false)
+
+  async function exportar() {
+    const a = document.createElement('a')
+    a.href = '/api/admin/jugadores/export'
+    a.download = 'jugadores-panda.xlsx'
+    a.click()
+  }
+
+  async function importar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImportando(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    const r = await fetch('/api/admin/jugadores/export', { method: 'POST', body: fd })
+    const data = await r.json()
+    if (data.exito) { toast(data.mensaje, 'success'); await cargar() }
+    else toast(data.error ?? 'Error al importar.', 'error')
+    setImportando(false)
+    e.target.value = ''
+  }
 
   useEffect(() => { cargar() }, [])
 
@@ -98,13 +120,25 @@ export default function JugadoresPage() {
           <h1 className="font-['Bebas_Neue'] text-3xl text-white tracking-wide">Jugadores</h1>
           <p className="text-sm text-slate-500 mt-0.5">{jugadores.filter(j => j.activo).length} activos · {jugadores.length} total</p>
         </div>
-        <button
-          onClick={abrirCrear}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110"
-          style={{ background: 'linear-gradient(135deg,#1d6bf3,#0d4fd4)', boxShadow: '0 2px 12px rgba(29,107,243,0.35)' }}
-        >
-          + Agregar Jugador
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button onClick={exportar}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-green-400 hover:text-white transition-colors hover:bg-green-500/20"
+            style={{ border: '1px solid rgba(74,222,128,0.2)' }}>
+            ⬇ Exportar Excel
+          </button>
+          <label className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors ${importando ? 'text-slate-500' : 'text-cyan-400 hover:text-white hover:bg-cyan-500/20'}`}
+            style={{ border: '1px solid rgba(0,210,255,0.2)' }}>
+            {importando ? '⏳ Importando...' : '⬆ Importar Excel'}
+            <input type="file" accept=".xlsx,.xls" className="hidden" onChange={importar} disabled={importando} />
+          </label>
+          <button
+            onClick={abrirCrear}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110"
+            style={{ background: 'linear-gradient(135deg,#1d6bf3,#0d4fd4)', boxShadow: '0 2px 12px rgba(29,107,243,0.35)' }}
+          >
+            + Agregar Jugador
+          </button>
+        </div>
       </div>
 
       {/* Search + filters */}
