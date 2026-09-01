@@ -1,13 +1,13 @@
 import { NextRequest } from 'next/server'
 import sql from '@/lib/db'
+import { getSession, requireAdmin } from '@/lib/auth'
 
-// Aplica migraciones pendientes de forma segura
-// GET /api/migrate?secret=TU_SETUP_SECRET
+// Aplica migraciones pendientes — solo admin autenticado
+// GET /api/migrate  (requiere cookie panda_token con rol admin)
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get('secret')
-  if (!secret || secret !== process.env.SETUP_SECRET) {
-    return Response.json({ error: 'No autorizado.' }, { status: 401 })
-  }
+  const session = await getSession(req)
+  const authError = requireAdmin(session)
+  if (authError) return authError
 
   const migraciones = []
   try {
