@@ -2,8 +2,8 @@
 import bcrypt from 'bcryptjs'
 import sql from '@/lib/db'
 import { signToken } from '@/lib/jwt'
-
 import { buildCookie } from '@/lib/cookies'
+import { parseBody, RegistroSchema } from '@/lib/schemas'
 
 function cookieResponse(body: object, token: string) {
   const res = Response.json(body)
@@ -13,19 +13,12 @@ function cookieResponse(body: object, token: string) {
 }
 
 export async function POST(req: NextRequest) {
-  let { email, password, nombreDT, torneoId } = await req.json()
-if (!torneoId || torneoId === "") {
-  const [torneo] = await sql`SELECT id FROM torneos LIMIT 1`
-  torneoId = torneo?.id
-}
-  if (!email || !password || !nombreDT) {
-    return Response.json({ exito: false, mensaje: 'Todos los campos son requeridos.' }, { status: 400 })
-  }
-  if (password.length < 8) {
-    return Response.json({ exito: false, mensaje: 'La contraseña debe tener al menos 8 caracteres.' }, { status: 400 })
-  }
-  if (nombreDT.trim().length > 20) {
-    return Response.json({ exito: false, mensaje: 'El apodo no puede superar 20 caracteres.' }, { status: 400 })
+  const parsed = await parseBody(req, RegistroSchema)
+  if (parsed instanceof Response) return parsed
+  let { email, password, nombreDT, torneoId } = parsed.data
+  if (!torneoId || torneoId === '') {
+    const [torneo] = await sql`SELECT id FROM torneos LIMIT 1`
+    torneoId = torneo?.id
   }
 
   if (process.env.DEV_MODE === 'true') {

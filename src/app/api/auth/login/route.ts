@@ -2,8 +2,8 @@
 import bcrypt from 'bcryptjs'
 import sql from '@/lib/db'
 import { signToken } from '@/lib/jwt'
-
 import { buildCookie } from '@/lib/cookies'
+import { parseBody, LoginSchema } from '@/lib/schemas'
 
 function cookieResponse(body: object, token: string) {
   const res = Response.json(body)
@@ -13,11 +13,9 @@ function cookieResponse(body: object, token: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { email, password, torneoId } = await req.json()
-
-  if (!email || !password || !torneoId) {
-    return Response.json({ exito: false, mensaje: 'Datos incompletos.' }, { status: 400 })
-  }
+  const parsed = await parseBody(req, LoginSchema)
+  if (parsed instanceof Response) return parsed
+  const { email, password, torneoId } = parsed.data
 
   if (process.env.DEV_MODE === 'true') {
     const token = await signToken({

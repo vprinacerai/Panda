@@ -9,6 +9,14 @@ const Cancha = dynamic(() => import('@/components/Cancha'), { ssr: false })
 
 type Tab = 'equipo' | 'ranking' | 'reglas'
 
+interface Jugador {
+  id: string
+  nombre: string
+  equipo: string
+  posicion: 'ARQ' | 'DEF' | 'VOL' | 'DEL'
+  ptsUltimaFecha: number
+}
+
 export default function AppPage() {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('equipo')
@@ -17,7 +25,7 @@ export default function AppPage() {
   const [logoError, setLogoError] = useState(false)
 
   // Jugadores
-  const [jugadores, setJugadores] = useState([])
+  const [jugadores, setJugadores] = useState<Jugador[]>([])
   const [equipoData, setEquipoData] = useState<{
     fechaActual: { id: string; nombre: string; deadline: string | null } | null
     mercadoAbierto: boolean

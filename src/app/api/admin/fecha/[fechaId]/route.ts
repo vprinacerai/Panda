@@ -74,32 +74,44 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ fec
 
   const torneoId = session!.torneoId
 
-  // Fetch posiciones para calcular puntos
   const jugadores = await sql`SELECT id, posicion FROM jugadores WHERE torneo_id = ${torneoId}`
   const posMap: Record<string, string> = {}
   jugadores.forEach(j => { posMap[j.id] = j.posicion })
 
-  for (const s of statsArray) {
+  // Calcular puntos para todos los jugadores en memoria
+  const rows = statsArray.map(s => {
     const posicion = (posMap[s.jugador_id] ?? 'DEL') as 'ARQ' | 'DEF' | 'VOL' | 'DEL'
     const puntos = calcularPuntos({ posicion, goles: s.goles ?? 0, valla_invicta: s.valla_invicta ?? false,
       amarillas: s.amarillas ?? 0, roja: s.roja ?? false, penales_atajados: s.penales_atajados ?? 0,
       penales_errados: s.penales_errados ?? 0, es_figura: s.es_figura ?? false, jugo: s.jugo ?? false })
+    return { ...s, puntos, torneoId, fechaId }
+  })
 
-    await sql`
-      INSERT INTO estadisticas
-        (torneo_id, jugador_id, fecha_config_id, goles, valla_invicta, amarillas, roja,
-         penales_atajados, penales_errados, es_figura, jugo, puntos_totales)
-      VALUES
-        (${torneoId}, ${s.jugador_id}, ${fechaId}, ${s.goles ?? 0}, ${s.valla_invicta ?? false},
-         ${s.amarillas ?? 0}, ${s.roja ?? false}, ${s.penales_atajados ?? 0},
-         ${s.penales_errados ?? 0}, ${s.es_figura ?? false}, ${s.jugo ?? false}, ${puntos})
-      ON CONFLICT (jugador_id, fecha_config_id) DO UPDATE SET
-        goles = EXCLUDED.goles, valla_invicta = EXCLUDED.valla_invicta,
-        amarillas = EXCLUDED.amarillas, roja = EXCLUDED.roja,
-        penales_atajados = EXCLUDED.penales_atajados, penales_errados = EXCLUDED.penales_errados,
-        es_figura = EXCLUDED.es_figura, jugo = EXCLUDED.jugo, puntos_totales = EXCLUDED.puntos_totales
-    `
-  }
+  // Batch INSERT — un solo query para todos los jugadores (elimina N+1)
+  await sql`
+    INSERT INTO estadisticas
+      (torneo_id, jugador_id, fecha_config_id, goles, valla_invicta, amarillas, roja,
+       penales_atajados, penales_errados, es_figura, jugo, puntos_totales)
+    SELECT * FROM UNNEST(
+      ${rows.map(r => r.torneoId)}::uuid[],
+      ${rows.map(r => r.jugador_id)}::uuid[],
+      ${rows.map(r => r.fechaId)}::uuid[],
+      ${rows.map(r => r.goles ?? 0)}::int[],
+      ${rows.map(r => r.valla_invicta ?? false)}::bool[],
+      ${rows.map(r => r.amarillas ?? 0)}::int[],
+      ${rows.map(r => r.roja ?? false)}::bool[],
+      ${rows.map(r => r.penales_atajados ?? 0)}::int[],
+      ${rows.map(r => r.penales_errados ?? 0)}::int[],
+      ${rows.map(r => r.es_figura ?? false)}::bool[],
+      ${rows.map(r => r.jugo ?? false)}::bool[],
+      ${rows.map(r => r.puntos)}::int[]
+    )
+    ON CONFLICT (jugador_id, fecha_config_id) DO UPDATE SET
+      goles = EXCLUDED.goles, valla_invicta = EXCLUDED.valla_invicta,
+      amarillas = EXCLUDED.amarillas, roja = EXCLUDED.roja,
+      penales_atajados = EXCLUDED.penales_atajados, penales_errados = EXCLUDED.penales_errados,
+      es_figura = EXCLUDED.es_figura, jugo = EXCLUDED.jugo, puntos_totales = EXCLUDED.puntos_totales
+  `
 
-  return Response.json({ exito: true, mensaje: `✅ Stats guardadas para ${statsArray.length} jugadores.` })
+  return Response.json({ exito: true, mensaje: `Stats guardadas para ${rows.length} jugadores.` })
 }
