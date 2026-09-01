@@ -162,7 +162,7 @@ export default function FechasAdminPage() {
                 <>
                   <a href={`/admin/fecha/${f.id}`}
                     className="text-xs font-bold text-cyan-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-cyan-500/20">
-                    Cargar Stats
+                    Cargar Estadísticas
                   </a>
                   <button onClick={() => setConfirmPublicar(f)}
                     className="text-xs font-bold text-green-400 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors hover:bg-green-500/20">
