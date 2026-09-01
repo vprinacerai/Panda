@@ -3,10 +3,12 @@ import bcrypt from 'bcryptjs'
 import sql from '@/lib/db'
 import { signToken } from '@/lib/jwt'
 
+import { buildCookie } from '@/lib/cookies'
+
 function cookieResponse(body: object, token: string) {
   const res = Response.json(body)
   const headers = new Headers(res.headers)
-  headers.set('Set-Cookie', `panda_token=${token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`)
+  headers.set('Set-Cookie', buildCookie('panda_token', token, 60 * 60 * 24 * 7))
   return new Response(res.body, { status: res.status, headers })
 }
 

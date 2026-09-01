@@ -1,3 +1,5 @@
+import { buildCookie } from '@/lib/cookies'
+
 import { NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
 import sql from '@/lib/db'
@@ -36,6 +38,6 @@ export async function POST(req: NextRequest) {
 
   const res = Response.json({ exito: true, mensaje: 'Contraseña actualizada correctamente.' })
   const headers = new Headers(res.headers)
-  headers.set('Set-Cookie', `panda_token=${token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`)
+  headers.set('Set-Cookie', buildCookie('panda_token', token, 60 * 60 * 24 * 7))
   return new Response(res.body, { status: 200, headers })
 }

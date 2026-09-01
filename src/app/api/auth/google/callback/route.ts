@@ -1,11 +1,12 @@
 import { NextRequest } from 'next/server'
 import sql from '@/lib/db'
 import { signToken } from '@/lib/jwt'
+import { buildCookie } from '@/lib/cookies'
 
 function makeRedirect(origin: string, path: string, cookie?: string) {
   const headers = new Headers({ Location: `${origin}${path}` })
   if (cookie) headers.append('Set-Cookie', cookie)
-  headers.append('Set-Cookie', 'g_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax')
+    headers.append('Set-Cookie', buildCookie('g_state', '', 0))
   return new Response(null, { status: 302, headers })
 }
 
@@ -74,7 +75,7 @@ export async function GET(req: NextRequest) {
     rol:      usuario.rol,
   })
 
-  const jwtCookie = `panda_token=${token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`
+  const jwtCookie = buildCookie('panda_token', token, 60 * 60 * 24 * 7)
   return makeRedirect(origin, '/app', jwtCookie)
 }
 

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import crypto from 'crypto'
+import { buildCookie } from '@/lib/cookies'
 
 // Inicia el flujo OAuth: genera state CSRF y redirige a Google
 export async function GET(req: NextRequest) {
@@ -21,6 +22,6 @@ export async function GET(req: NextRequest) {
   const res = Response.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`)
   const headers = new Headers(res.headers)
   // State en cookie corta para verificación CSRF
-  headers.set('Set-Cookie', `g_state=${encodeURIComponent(state)}; HttpOnly; Path=/; Max-Age=300; SameSite=Lax`)
+  headers.set('Set-Cookie', buildCookie('g_state', encodeURIComponent(state), 300))
   return new Response(null, { status: 302, headers })
 }
