@@ -165,8 +165,18 @@ if (cookieAdmin) {
   }
 }
 
-// ── 5. EQUIPO DE USUARIO ─────────────────────────────────────────────────────
-console.log('\n🏟️  EQUIPO DE USUARIO')
+// ── 4. RATE LIMITING ─────────────────────────────────────────────────────────
+console.log('\n🚦 RATE LIMITING')
+
+// 5 intentos fallidos → bloqueo
+const emailBloqueo = `ratelimit_${Date.now()}@test.com`
+await req('POST', '/api/auth/registro', { email: emailBloqueo, password: 'Test1234!', nombreDT: 'RL Test', torneoId: TORNEO_ID })
+let ultimoStatus = 200
+for (let i = 0; i < 6; i++) {
+  const r = await req('POST', '/api/auth/login', { email: emailBloqueo, password: 'wrongpassword', torneoId: TORNEO_ID })
+  ultimoStatus = r.status
+}
+log('RateLimit', '5 intentos fallidos → cuenta bloqueada (429)', ultimoStatus === 429, `HTTP ${ultimoStatus}`)
 
 if (cookieUser) {
   const equipo = await req('GET', '/api/equipo', null, cookieUser)

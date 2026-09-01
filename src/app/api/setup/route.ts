@@ -44,6 +44,8 @@ export async function GET(req: NextRequest) {
       nombre_dt           text NOT NULL,
       rol                 text DEFAULT 'jugador' CHECK (rol IN ('jugador', 'admin')),
       codigo_recuperacion text,
+      login_attempts      integer DEFAULT 0,
+      lockout_until       timestamptz,
       created_at          timestamptz DEFAULT now(),
       UNIQUE(torneo_id, email)
     )`

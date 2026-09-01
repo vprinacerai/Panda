@@ -12,6 +12,9 @@ function cookieResponse(body: object, token: string) {
   return new Response(res.body, { status: res.status, headers })
 }
 
+const MAX_INTENTOS = 5
+const BLOQUEO_MINUTOS = 15
+
 export async function POST(req: NextRequest) {
   const parsed = await parseBody(req, LoginSchema)
   if (parsed instanceof Response) return parsed
@@ -30,20 +33,37 @@ export async function POST(req: NextRequest) {
 
   const emailNorm = email.trim().toLowerCase()
   const [usuario] = await sql`
-    SELECT id, email, password_hash, nombre_dt, rol
+    SELECT id, email, password_hash, nombre_dt, rol, login_attempts, lockout_until
     FROM usuarios
     WHERE torneo_id = ${torneoId} AND email = ${emailNorm}
     LIMIT 1
   `
 
   if (!usuario) {
+    // Respuesta genérica para no revelar si el email existe
     return Response.json({ exito: false, mensaje: 'Correo o contraseña incorrectos.' })
+  }
+
+  // Verificar bloqueo activo
+  if (usuario.lockoutUntil && new Date() < new Date(usuario.lockoutUntil)) {
+    const minutosRestantes = Math.ceil((new Date(usuario.lockoutUntil).getTime() - Date.now()) / 60000)
+    return Response.json({ exito: false, mensaje: `Cuenta bloqueada temporalmente. Intentá en ${minutosRestantes} min.` }, { status: 429 })
   }
 
   const match = await bcrypt.compare(password, usuario.passwordHash)
   if (!match) {
-    return Response.json({ exito: false, mensaje: 'Correo o contraseña incorrectos.' })
+    const nuevosIntentos = (usuario.loginAttempts ?? 0) + 1
+    if (nuevosIntentos >= MAX_INTENTOS) {
+      const lockout = new Date(Date.now() + BLOQUEO_MINUTOS * 60 * 1000)
+      await sql`UPDATE usuarios SET login_attempts = ${nuevosIntentos}, lockout_until = ${lockout} WHERE id = ${usuario.id}`
+      return Response.json({ exito: false, mensaje: `Demasiados intentos fallidos. Cuenta bloqueada por ${BLOQUEO_MINUTOS} minutos.` }, { status: 429 })
+    }
+    await sql`UPDATE usuarios SET login_attempts = ${nuevosIntentos} WHERE id = ${usuario.id}`
+    return Response.json({ exito: false, mensaje: `Correo o contraseña incorrectos. (${MAX_INTENTOS - nuevosIntentos} intentos restantes)` })
   }
+
+  // Login exitoso: resetear contador
+  await sql`UPDATE usuarios SET login_attempts = 0, lockout_until = NULL WHERE id = ${usuario.id}`
 
   const token = await signToken({
     userId: usuario.id,
