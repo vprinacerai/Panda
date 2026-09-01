@@ -18,24 +18,27 @@ export async function GET(req: NextRequest) {
 
   const POS_LABEL: Record<string, string> = { ARQ: 'Arquero', DEF: 'Defensor', VOL: 'Volante', DEL: 'Delantero' }
 
-  const rows = jugadores.map(j => ({
-    Nombre:    j.nombre,
-    Equipo:    j.equipo,
-    Posicion:  j.posicion,          // ARQ / DEF / VOL / DEL
-    Rol:       POS_LABEL[j.posicion] ?? j.posicion,
-    Estado:    j.activo ? 'Activo' : 'Baja',
-  }))
+  // Separar nombre en Nombre + Apellido (primera palabra vs el resto)
+  const rows = jugadores.map(j => {
+    const partes = j.nombre.trim().split(' ')
+    const nombre   = partes[0] ?? ''
+    const apellido = partes.slice(1).join(' ')
+    return {
+      Nombre:   nombre,
+      Apellido: apellido,
+      Equipo:   j.equipo,
+      Posicion: j.posicion,   // ARQ / DEF / VOL / DEL
+      Rol:      POS_LABEL[j.posicion] ?? j.posicion,
+      Estado:   j.activo ? 'Activo' : 'Baja',
+    }
+  })
 
   const wb = XLSX.utils.book_new()
   const ws = XLSX.utils.json_to_sheet(rows)
-
-  // Anchos de columna
-  ws['!cols'] = [{ wch: 30 }, { wch: 25 }, { wch: 8 }, { wch: 14 }, { wch: 8 }]
-
+  ws['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 25 }, { wch: 8 }, { wch: 14 }, { wch: 8 }]
   XLSX.utils.book_append_sheet(wb, ws, 'Jugadores')
 
   const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
-
   return new Response(buf, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -45,7 +48,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/admin/jugadores/export — importar jugadores desde Excel
-// Columnas requeridas: Nombre, Equipo, Posicion (ARQ/DEF/VOL/DEL)
+// Columnas: Nombre + Apellido (o solo Nombre con nombre completo), Equipo, Posicion
 export async function POST(req: NextRequest) {
   const session = await getSession(req)
   const authError = requireAdmin(session)
@@ -65,35 +68,40 @@ export async function POST(req: NextRequest) {
   const POSICIONES_VALIDAS = ['ARQ', 'DEF', 'VOL', 'DEL']
   const torneoId = session!.torneoId
 
-  let insertados = 0, actualizados = 0, errores: string[] = []
+  let insertados = 0, actualizados = 0, sinPosicion = 0
 
   for (const row of rows) {
-    const nombre   = String(row['Nombre'] ?? row['NOMBRE'] ?? '').trim()
-    const equipo   = String(row['Equipo'] ?? row['EQUIPO'] ?? row['Club'] ?? row['CLUB'] ?? '').trim()
-    const posicion = String(row['Posicion'] ?? row['POSICION'] ?? row['Posición'] ?? row['POSICIÓN'] ?? '').trim().toUpperCase()
+    const nombre1   = String(row['Nombre'] ?? row['NOMBRE'] ?? row['nombre'] ?? '').trim()
+    const apellido  = String(row['Apellido'] ?? row['APELLIDO'] ?? row['apellido'] ?? '').trim()
+    // Combinar nombre + apellido si vienen separados
+    const nombreCompleto = apellido ? `${nombre1} ${apellido}`.trim() : nombre1
+    const equipo = String(
+      row['Equipo'] ?? row['EQUIPO'] ?? row['equipo'] ?? row['Club'] ?? row['CLUB'] ?? ''
+    ).trim()
+    let posicion = String(
+      row['Posicion'] ?? row['POSICION'] ?? row['Posición'] ?? row['POSICIÓN'] ?? ''
+    ).trim().toUpperCase()
 
-    if (!nombre || !equipo || !posicion) { errores.push(`Fila incompleta: ${nombre || '?'}`); continue }
-    if (!POSICIONES_VALIDAS.includes(posicion)) { errores.push(`Posición inválida "${posicion}" para ${nombre}`); continue }
+    if (!nombreCompleto || !equipo) continue
+    if (!POSICIONES_VALIDAS.includes(posicion)) { posicion = 'DEL'; sinPosicion++ }
 
-    // Upsert: si existe (mismo nombre+equipo+torneo) actualiza, si no inserta
     const [existing] = await sql`
-      SELECT id FROM jugadores WHERE torneo_id = ${torneoId} AND nombre = ${nombre} AND equipo = ${equipo} LIMIT 1
+      SELECT id FROM jugadores WHERE torneo_id = ${torneoId} AND nombre = ${nombreCompleto} AND equipo = ${equipo} LIMIT 1
     `
-
     if (existing) {
       await sql`UPDATE jugadores SET posicion = ${posicion}, activo = true WHERE id = ${existing.id}`
       actualizados++
     } else {
-      await sql`INSERT INTO jugadores (torneo_id, nombre, equipo, posicion, activo) VALUES (${torneoId}, ${nombre}, ${equipo}, ${posicion}, true)`
+      await sql`INSERT INTO jugadores (torneo_id, nombre, equipo, posicion, activo) VALUES (${torneoId}, ${nombreCompleto}, ${equipo}, ${posicion}, true)`
       insertados++
     }
   }
 
+  const advertencia = sinPosicion > 0 ? ` (${sinPosicion} sin posición → DEL por defecto, editá desde el panel)` : ''
   return Response.json({
     exito: true,
     insertados,
     actualizados,
-    errores: errores.slice(0, 10),
-    mensaje: `${insertados} agregados, ${actualizados} actualizados${errores.length ? `, ${errores.length} errores` : ''}.`,
+    mensaje: `${insertados + actualizados} jugadores procesados: ${insertados} nuevos, ${actualizados} actualizados${advertencia}.`,
   })
 }

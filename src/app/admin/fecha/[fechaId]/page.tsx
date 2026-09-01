@@ -122,11 +122,6 @@ export default function AdminFechaPage() {
           </div>
         </div>
         <div className="flex gap-2.5">
-          <button onClick={() => setConfirm(true)}
-            className="px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:brightness-110"
-            style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', boxShadow: '0 2px 12px rgba(22,163,74,0.3)' }}>
-            ✅ Publicar Fecha
-          </button>
         </div>
       </div>
 
