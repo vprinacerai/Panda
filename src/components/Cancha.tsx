@@ -236,7 +236,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
         {/* Field preview */}
         <div className="rounded-2xl border border-white/8 overflow-x-auto sm:overflow-hidden" style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.7)' }}>
           <div
-            className="relative flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-0 sm:gap-3 px-3 sm:px-6 py-2 sm:py-4 sm:min-w-[840px] sm:h-[490px]"
+            className="relative flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-0 sm:gap-3 px-3 sm:px-6 py-2 sm:py-4 sm:min-w-[840px] sm:h-[640px]"
             style={{ background: 'linear-gradient(180deg,#0d3017,#11361b)', backgroundImage: 'repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 60px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 80px)' }}
           >
             <div className="hidden sm:block absolute inset-y-0 left-1/2 w-px bg-white/15" />
@@ -423,7 +423,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
       {/* Cancha */}
       <div className="rounded-2xl border border-white/8 mb-4 overflow-x-auto sm:overflow-hidden" style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.7)' }}>
         <div
-          className="relative flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-0 sm:gap-3 px-3 sm:px-6 py-2 sm:py-4 sm:min-w-[840px] sm:h-[490px]"
+          className="relative flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-0 sm:gap-3 px-3 sm:px-6 py-2 sm:py-4 sm:min-w-[840px] sm:h-[640px]"
           style={{ background: 'linear-gradient(180deg,#0d3017,#11361b)', backgroundImage: 'repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 60px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 80px)' }}
         >
           <div className="hidden sm:block absolute inset-y-0 left-1/2 w-px bg-white/15" />
