@@ -57,12 +57,27 @@ export async function GET(req: NextRequest) {
     LIMIT 1
   `
 
+  let equipoConFormacion = equipoGuardado ?? null
+  if (equipoGuardado?.jugadoresIds?.length) {
+    const posiciones = await sql`
+      SELECT posicion, COUNT(*)::int AS cantidad
+      FROM jugadores
+      WHERE torneo_id = ${torneoId} AND id = ANY(${equipoGuardado.jugadoresIds}::uuid[])
+      GROUP BY posicion
+    `
+    const cantidades = Object.fromEntries(posiciones.map(p => [p.posicion, p.cantidad]))
+    equipoConFormacion = {
+      ...equipoGuardado,
+      formacion: `${cantidades.DEF ?? 0}-${cantidades.VOL ?? 0}-${cantidades.DEL ?? 0}`,
+    }
+  }
+
   return Response.json({
     fechaActual: { id: fechaActual.id, nombre: fechaActual.nombreFecha, deadline: fechaActual.deadlineCierre },
     mercadoAbierto,
     reaperturaEn,
     premios,
-    equipoGuardado: equipoGuardado ?? null,
+    equipoGuardado: equipoConFormacion,
   })
 }
 

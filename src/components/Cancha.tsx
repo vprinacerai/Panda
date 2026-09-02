@@ -15,6 +15,7 @@ interface EquipoGuardado {
   nombreEquipo: string
   capitanId: string | null
   jugadoresIds: string[]
+  formacion?: string
 }
 
 interface Props {
@@ -82,8 +83,13 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
   // Cargar equipo guardado y entrar en modo ver
   useEffect(() => {
     if (equipo) {
+      const formacionGuardada = FORMACIONES.some(f => f.value === equipo.formacion)
+        ? equipo.formacion!
+        : '2-2-2'
+
       setNombreEquipo(equipo.nombreEquipo)
       setCapitanId(equipo.capitanId)
+      setFormacion(formacionGuardada)
       setModo('ver')
 
       const byPos: Record<string, string[]> = { ARQ: [], DEF: [], VOL: [], DEL: [] }
@@ -92,7 +98,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
         if (j) byPos[j.posicion].push(id)
       })
 
-      const fmt = formacion.split('-').map(Number)
+      const fmt = formacionGuardada.split('-').map(Number)
       const nuevas: Record<string, string> = {}
       ;(['ARQ', 'DEF', 'VOL', 'DEL'] as const).forEach((pos, pi) => {
         const cant = pos === 'ARQ' ? 1 : fmt[pi - 1]
@@ -102,7 +108,7 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
       })
       setSelecciones(nuevas)
     }
-  }, [equipo])
+  }, [equipo, jugadores])
 
   useEffect(() => {
     if (!deadlineCierre || !mercadoAbierto) return
