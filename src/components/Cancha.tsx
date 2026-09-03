@@ -139,27 +139,17 @@ export default function Cancha({ jugadores, equipo, fechaConfigId, mercadoAbiert
 
   function cambiarFormacion(nuevaFormacion: string) {
     const cantidades = nuevaFormacion.split('-').map(Number)
-    const nuevoEsquema = [
-      { pos: 'ARQ', cant: 1 },
-      { pos: 'DEF', cant: cantidades[0] },
-      { pos: 'VOL', cant: cantidades[1] },
-      { pos: 'DEL', cant: cantidades[2] },
-    ] as const
-    const nuevasSelecciones: Record<string, string> = {}
+    const nuevosSlots = new Set([
+      'ARQ_0',
+      ...Array.from({ length: cantidades[0] }, (_, i) => `DEF_${i}`),
+      ...Array.from({ length: cantidades[1] }, (_, i) => `VOL_${i}`),
+      ...Array.from({ length: cantidades[2] }, (_, i) => `DEL_${i}`),
+    ])
+    const jugadoresVisibles = Object.entries(selecciones)
+      .filter(([slot]) => nuevosSlots.has(slot))
+      .map(([, jugadorId]) => jugadorId)
+      .filter(Boolean)
 
-    nuevoEsquema.forEach(linea => {
-      const actuales = Object.entries(selecciones)
-        .filter(([slot, jugadorId]) => slot.startsWith(`${linea.pos}_`) && Boolean(jugadorId))
-        .sort(([slotA], [slotB]) => slotA.localeCompare(slotB))
-        .map(([, jugadorId]) => jugadorId)
-
-      for (let i = 0; i < linea.cant; i++) {
-        nuevasSelecciones[`${linea.pos}_${i}`] = actuales[i] ?? ''
-      }
-    })
-
-    const jugadoresVisibles = Object.values(nuevasSelecciones).filter(Boolean)
-    setSelecciones(nuevasSelecciones)
     setCapitanId(actual => actual && jugadoresVisibles.includes(actual) ? actual : null)
     setFormacion(nuevaFormacion)
   }
